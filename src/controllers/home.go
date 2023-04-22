@@ -16,7 +16,7 @@ func Home(c *gin.Context) {
 	jsonData := s.Get(UserSessionKey).(string)
 
 	if err := json.Unmarshal([]byte(jsonData), &user); err != nil {
-		panic(err)
+		ErrCtrl("Home", err)
 	}
 
 	// query
@@ -24,8 +24,8 @@ func Home(c *gin.Context) {
 
 	for q, _ := Conn().Query("SELECT * FROM product WHERE id_user = ?", user.Id); q.Next(); {
 		data := models.Product{}
-		if err := q.Scan(&data.Id, &data.Name, &data.Qty); err != nil {
-			panic(err)
+		if err := q.Scan(&data.Id, &data.Name, &data.Qty, &data.Price, &data.IdUser, &data.Descript); err != nil {
+			ErrCtrl("Home", err)
 		}
 		datas = append(datas, data)
 	}

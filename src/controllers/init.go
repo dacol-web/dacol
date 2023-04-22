@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -12,4 +14,10 @@ func Conn() *sql.DB {
 		panic(err)
 	}
 	return conn
+}
+
+type Ctx *gin.Context
+
+func ErrCtrl(ctrl string, err error) {
+	panic(fmt.Sprintf("%s controller err : %s", ctrl, err.Error()))
 }

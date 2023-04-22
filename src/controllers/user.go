@@ -46,9 +46,9 @@ func Login(c *gin.Context) {
 	s := sessions.Default(c)
 	jsonData, err := json.Marshal(user)
 	if err != nil {
-		panic(err)
+		ErrCtrl("Login", err)
 	}
-	s.Set(UserSessionKey, jsonData)
+	s.Set(UserSessionKey, string(jsonData))
 	s.Save()
 
 	c.Done()
@@ -71,7 +71,7 @@ func Register(c *gin.Context) {
 	var req RegisterForm
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		panic(err)
+		ErrCtrl("Register", err)
 	}
 	// validate
 	validate = validator.New()
@@ -82,7 +82,7 @@ func Register(c *gin.Context) {
 
 	newPass, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if _, err := Conn().Query("INSERT INTO user(email, password) VALUES(?, ?)", req.Email, string(newPass)); err != nil {
-		panic(err)
+		ErrCtrl("Register", err)
 	}
 	c.Done()
 }

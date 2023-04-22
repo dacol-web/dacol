@@ -12,8 +12,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JWT_TOKEN string = os.Getenv("JWT_TOKEN")
-var JWT_SIGNED_METHOD *jwt.SigningMethodHMAC = jwt.SigningMethodHS256
+var (
+	JWT_TOKEN         string                 = os.Getenv("JWT_TOKEN")
+	JWT_SIGNED_METHOD *jwt.SigningMethodHMAC = jwt.SigningMethodHS256
+)
 
 type JWTClaim struct {
 	models.User
@@ -32,14 +34,14 @@ func ValidateToken(signToken string) bool {
 		},
 	)
 	if err != nil {
-		panic(err)
+		ErrCtrl("ValidateToken", err)
 	}
 
 	_, ok := token.Claims.(*JWTClaim)
 	return ok && token.Valid
 }
 
-func GenerateToken(user models.User) (string, error) {
+func GenerateToken(user models.User) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, JWTClaim{
 		user,
 		jwt.RegisteredClaims{
@@ -50,8 +52,11 @@ func GenerateToken(user models.User) (string, error) {
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	return token.SignedString([]byte(JWT_TOKEN))
-
+	s, err := token.SignedString([]byte(JWT_TOKEN))
+	if err != nil {
+		ErrCtrl("GenerateToken", err)
+	}
+	return s
 }
 
 func AuthReq(c *gin.Context) {

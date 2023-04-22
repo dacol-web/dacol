@@ -10,13 +10,14 @@ import (
 )
 
 func Route() *gin.Engine {
-	// testing
+	// All PASS
 	r := gin.New()
+
 	// store
 	store := cookie.NewStore([]byte("dwdwd"))
 	store.Options(sessions.Options{
 		Path:     "/",
-		Domain:   "localhost:3000",
+		Domain:   "localhost",
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
@@ -24,22 +25,27 @@ func Route() *gin.Engine {
 
 	r.Use(sessions.Sessions("web_session", store))
 
-	// Route user
+	// Pass
+	// Not need auth
+
 	r.POST("/login", ctrl.Login)
 	r.POST("/register", ctrl.Register)
 
-	// Home
+	// Need auth first
 	auth := r.Group("/auth").Use(ctrl.AuthReq)
 	{
-		auth.GET("/user", ctrl.User)
-		auth.GET("/home", ctrl.Home)
+		// Get user from session
+		auth.GET("/user", ctrl.User) // Pass
+
+		auth.GET("/home", ctrl.Home) // Pass
 
 		// Route Product
+		// Pass
 		auth.POST("/add-product", ctrl.ProdAdd)
-		auth.GET("/product/:id/", ctrl.ProdDetail)
+		auth.GET("/product/:id", ctrl.ProdDetail)
 		auth.DELETE("/product/:id/delete", ctrl.ProdDelete)
 
-		auth.DELETE("/logout", ctrl.Logout)
+		auth.DELETE("/logout", ctrl.Logout) // Pass
 	}
 
 	return r
