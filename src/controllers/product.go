@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Hy-Iam-Noval/dacol/src/models"
@@ -33,9 +34,9 @@ func ProdAdd(c *gin.Context) {
 	_, err := Conn().
 		Query(`
 			INSERT INTO 
-				product(name, price, qty, descript, id_user) 
-				VALUES(?, ?, ?, ?, ?)`,
-			req.Name, req.Price, req.Qty, req.Descript,
+				product(id,name, price, qty, descript, id_user) 
+				VALUES(?, ?, ?, ?, ?, ?)`,
+			req.Id, req.Name, req.Price, req.Qty, req.Descript,
 			user.Id,
 		)
 	Conn().Close()
@@ -64,9 +65,24 @@ func ProdDelete(c *gin.Context) {
 
 // GET /product/:ids
 func ProdDetail(c *gin.Context) {
+	datas := models.Product{}
 	req := c.Param("id")
-	row := Conn().QueryRow("SELECT FROM product WHERE id=?", req)
+
+	if err := Conn().
+		QueryRow(fmt.Sprintf("SELECT * FROM product WHERE id = %s", req)).
+		Scan(
+			&datas.Id,
+			&datas.Name,
+			&datas.Qty,
+			&datas.Price,
+			&datas.IdUser,
+			&datas.Descript,
+		); err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+
 	Conn().Close()
 
-	c.JSON(http.StatusOK, row)
+	c.JSON(http.StatusOK, datas)
 }

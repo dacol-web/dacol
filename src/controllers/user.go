@@ -26,20 +26,20 @@ func Login(c *gin.Context) {
 
 	// get request
 	if err := c.ShouldBindJSON(&req); err != nil {
-		panic(err)
+		ErrCtrl("Login", err)
 	}
 
 	// query
-	if err := Conn().
+	Conn().
 		QueryRow("SELECT * FROM user WHERE email = ?", req.Email).
-		Scan(&user.Id, &user.Email, &user.Password); err != nil {
-		panic(err)
-	}
+		Scan(&user.Id, &user.Email, &user.Password)
 
 	defer Conn().Close()
 
-	if res := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); res != nil && (user == models.User{}) {
-		c.JSON(401, struct{ err string }{err: "Password or Email wrong"})
+	if res := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); res != nil || (user == models.User{}) {
+		c.JSON(401, gin.H{
+			"err": "Email or Password wrong",
+		})
 		return
 	}
 
