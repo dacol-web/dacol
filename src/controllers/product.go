@@ -34,9 +34,9 @@ func ProdAdd(c *gin.Context) {
 	_, err := Conn().
 		Query(`
 			INSERT INTO 
-				product(id,name, price, qty, descript, id_user) 
-				VALUES(?, ?, ?, ?, ?, ?)`,
-			req.Id, req.Name, req.Price, req.Qty, req.Descript,
+				product(name, price, qty, descript, id_user) 
+				VALUES( ?, ?, ?, ?, ?)`,
+			req.Name, req.Price, req.Qty, req.Descript,
 			user.Id,
 		)
 	Conn().Close()

@@ -52,7 +52,6 @@ func Login(c *gin.Context) {
 	s.Save()
 
 	c.Done()
-
 }
 
 func User(c *gin.Context) {

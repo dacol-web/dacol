@@ -1,9 +1,12 @@
 package src
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 
 	ctrl "github.com/Hy-Iam-Noval/dacol/src/controllers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -24,7 +27,18 @@ func Route() *gin.Engine {
 	})
 
 	r.Use(sessions.Sessions("web_session", store))
+	r.Use(cors.New(cors.Config{
+		AllowOriginFunc: func(origin string) bool {
+			res, err := regexp.Match("http://localhost:3000*.", []byte(origin))
+			if err != nil {
+				panic(fmt.Sprintf("Main %s", err))
+			}
+			return res
 
+		},
+		AllowMethods: []string{"POST", "GET", "DELETE"},
+		AllowHeaders: []string{"Content-Type"},
+	}))
 	// Pass
 	// Not need auth
 
